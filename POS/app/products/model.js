@@ -16,7 +16,16 @@ const productSchema = new mongoose.Schema({
   },
   image_url: {
     type: String
-  }
+  },
+  category:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
+ },
+ tags: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Tag',
+  }],
+
 },{timestamps:true});
 
 const Product = mongoose.model('Product', productSchema);
