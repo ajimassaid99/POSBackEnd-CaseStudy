@@ -12,7 +12,6 @@ const getCategories = async (req, res, next) => {
 const createCategory = async (req, res, next) => {
   try {
     let payload = req.body;
-    console.log(payload);
     let category = new Category(payload);
     await category.save();
     return res.json(category);

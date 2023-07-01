@@ -9,18 +9,38 @@ const Tag = require('../tag/model');
 
 const getProducts = async (req, res,next) => {
     try {
-      let { search,skip=0,limit=10 } = req.query;
-  
-      const query = search ? { name: { $regex: search, $options: 'i' } } : {};
-  
+      let { search,skip=0,limit=10,category='',tags=[] } = req.query;
+      let creteria={};
+      if (search){
+        creteria= {...creteria,  name: { $regex: search, $options: 'i' }}
+         };
+        
+      if(category){
+         let CategoryResult= await Category.findOne({ name: { $regex: category, $options: 'i' } });
+         if(CategoryResult){
+            creteria={...creteria, category: CategoryResult._id }
+         }
+      }
+      if (tags) {
+        let tagsResult = await Tag.find({ name: { $in: tags } });
+        if (tagsResult.length > 0) {
+          creteria = { ...creteria, tags: { $in: tagsResult.map((tag) => tag._id) } };
+        }
+      }
+
+      let count = await Product.find(creteria).countDocuments();
+
       const products = await Product
-      .find(query)
+      .find(creteria)
       .skip(parseInt(skip))
       .limit(parseInt(limit))
       .populate('category')
       .populate('tags');
 
-      return res.json(products);
+      return res.json({
+        data:products,
+        count
+    });
     } catch (error) {
       next(error);
     }
