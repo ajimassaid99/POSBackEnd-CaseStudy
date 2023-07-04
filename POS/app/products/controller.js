@@ -6,45 +6,75 @@ const { ObjectId } = require('mongodb');
 const config = require('../config');
 const Category = require('../category/model');
 const Tag = require('../tag/model');
+const Invoice = require('../invoice/model');
+const Order = require('../order/model');
 
-const getProducts = async (req, res,next) => {
-    try {
-      let { search,skip=0,limit=10,category='',tags=[] } = req.query;
-      let creteria={};
-      if (search){
-        creteria= {...creteria,  name: { $regex: search, $options: 'i' }}
-         };
-        
-      if(category){
-         let CategoryResult= await Category.findOne({ name: { $regex: category, $options: 'i' } });
-         if(CategoryResult){
-            creteria={...creteria, category: CategoryResult._id }
-         }
+const getProducts = async (req, res, next) => {
+  try {
+    let { search, skip = 0, limit = 10, category = '', tags = [] } = req.query;
+    let criteria = {};
+
+    if (search) {
+      criteria = { ...criteria, name: { $regex: search, $options: 'i' } };
+    }
+
+    if (category) {
+      let categoryResult = await Category.findOne({ name: { $regex: category, $options: 'i' } });
+      if (categoryResult) {
+        criteria = { ...criteria, category: categoryResult._id };
       }
-      if (tags) {
-        let tagsResult = await Tag.find({ name: { $in: tags } });
-        if (tagsResult.length > 0) {
-          creteria = { ...creteria, tags: { $in: tagsResult.map((tag) => tag._id) } };
-        }
+    }
+
+    if (tags) {
+      let tagsResult = await Tag.find({ name: { $in: tags } });
+      if (tagsResult.length > 0) {
+        criteria = { ...criteria, tags: { $in: tagsResult.map((tag) => tag._id) } };
       }
+    }
 
-      let count = await Product.find(creteria).countDocuments();
+    let count = await Product.find(criteria).countDocuments();
+    let orderIds = await Invoice.distinct('order', { payment_status: 'paid' });
 
-      const products = await Product
-      .find(creteria)
+    const products = await Product.find(criteria)
       .skip(parseInt(skip))
       .limit(parseInt(limit))
       .populate('category')
       .populate('tags');
 
-      return res.json({
-        data:products,
-        count
+    const orders = await Order.find({ _id: { $in: orderIds } }).populate({
+      path: 'order_items',
+      select: 'product qty',
     });
-    } catch (error) {
-      next(error);
-    }
-  };
+
+    const data = products.map((product) => {
+      const matchingOrders = orders.filter((order) =>
+        order.order_items.some((item) => item.product.equals(product._id))
+      );
+
+      let qty = 0;
+      matchingOrders.forEach((order) => {
+        const matchingItems = order.order_items.filter((item) => item.product.equals(product._id));
+        const orderQty = matchingItems.reduce((total, item) => total + item.qty, 0);
+        qty += orderQty;
+      });
+
+      return {
+        ...product.toObject(),
+        qty,
+      };
+    });
+
+    return res.json({
+      data,
+      count,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
 
 
 const getProductById = (req, res) => {

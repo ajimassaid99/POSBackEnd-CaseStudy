@@ -44,7 +44,9 @@ const localStrategy = async (email,password,done)=>{
 const login= (req,res,next)=>{
     return passport.authenticate('local', async function(err,user){
         if(err) return next(err);
-        if(!user)return res.json({error:1,massage:'Email or Passport Salah'});
+        if (!user) {
+            return res.status(401).json({ error: 1, message: 'Email salah atau password salah' });
+          }
 
         try {
             let signed = await new Promise((resolve, reject) => {
