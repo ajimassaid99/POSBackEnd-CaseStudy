@@ -60,7 +60,7 @@ const getProducts = async (req, res, next) => {
 
       return {
         ...product.toObject(),
-        qty,
+        sold: qty,
       };
     });
 
