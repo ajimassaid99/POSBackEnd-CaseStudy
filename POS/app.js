@@ -4,16 +4,9 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors'); 
-var productRoute = require('./app/products/router');
-var CategoryRoute = require('./app/category/router');
-var TagRoute = require('./app/tag/router');
-var AuthRoute = require('./app/auth/router');
-var AddresRoute = require('./app/deleveryAddress/router');
-var CartRoute = require('./app/cart/router');
-var OrderRoute = require('./app/order/router');
-var InvoiceRoute = require('./app/invoice/router');
 var {decodeToken} = require('./middleware');
 var app = express();
+var router = require('./router');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -26,23 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(decodeToken());
-//Auth
-app.use('/api',AuthRoute);
-//products
-app.use('/api',productRoute);
-//Tag
-app.use('/api',TagRoute);
-//category
-app.use('/api',CategoryRoute);
-//Address
-app.use('/api',AddresRoute);
-//Address
-app.use('/api',CartRoute);
-//Address
-app.use('/api',OrderRoute);
-//Address
-app.use('/api',InvoiceRoute);
-
+app.use('/',router);
 //home
 app.use('/',function (req,res){
  res.render('index',{
