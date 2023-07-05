@@ -11,4 +11,6 @@ module.exports = {
     dbUser: process.env.DB_USER,
     dbPass: process.env.DB_PASS,
     dbName: process.env.DB_NAME,
+    serverKey: process.env.SERVER_KEY,
+    clientKey: process.env.CLIENT_KEY,
 }

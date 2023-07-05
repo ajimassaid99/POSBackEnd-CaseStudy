@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-sequence')(mongoose);
 const Invoice = require('../invoice/model');
 
 
@@ -23,6 +22,9 @@ const orderSchema = mongoose.Schema({
     user:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'User'
+    },
+    redirect_url: {
+        type: String
     },
     order_items: [{type: mongoose.Schema.Types.ObjectId, ref:'OrderItem'}]
 },{timeStamps:true});

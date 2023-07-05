@@ -8,6 +8,7 @@ const Category = require('../category/model');
 const Tag = require('../tag/model');
 const Invoice = require('../invoice/model');
 const Order = require('../order/model');
+const Rating = require('../rating/model');
 
 const getProducts = async (req, res, next) => {
   try {
@@ -25,14 +26,14 @@ const getProducts = async (req, res, next) => {
       }
     }
 
-    if (tags) {
+    if (tags.length > 0) {
       let tagsResult = await Tag.find({ name: { $in: tags } });
       if (tagsResult.length > 0) {
         criteria = { ...criteria, tags: { $in: tagsResult.map((tag) => tag._id) } };
       }
     }
 
-    let count = await Product.find(criteria).countDocuments();
+    let count = await Product.countDocuments(criteria);
     let orderIds = await Invoice.distinct('order', { payment_status: 'paid' });
 
     const products = await Product.find(criteria)
@@ -40,6 +41,25 @@ const getProducts = async (req, res, next) => {
       .limit(parseInt(limit))
       .populate('category')
       .populate('tags');
+
+    const productIds = products.map((product) => product._id);
+
+    const productRatings = await Rating.aggregate([
+      {
+        $match: { product: { $in: productIds } },
+      },
+      {
+        $group: {
+          _id: '$product',
+          averageRating: { $avg: '$rating' },
+        },
+      },
+    ]);
+
+    const productRatingsMap = new Map();
+    productRatings.forEach((rating) => {
+      productRatingsMap.set(rating._id.toString(), rating.averageRating);
+    });
 
     const orders = await Order.find({ _id: { $in: orderIds } }).populate({
       path: 'order_items',
@@ -58,9 +78,12 @@ const getProducts = async (req, res, next) => {
         qty += orderQty;
       });
 
+      const rating = productRatingsMap.get(product._id.toString()) || 0;
+
       return {
         ...product.toObject(),
         sold: qty,
+        rating,
       };
     });
 
@@ -72,6 +95,8 @@ const getProducts = async (req, res, next) => {
     next(error);
   }
 };
+
+
 
 
 

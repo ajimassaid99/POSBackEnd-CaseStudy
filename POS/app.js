@@ -6,7 +6,16 @@ var logger = require('morgan');
 var cors = require('cors'); 
 var {decodeToken} = require('./middleware');
 var app = express();
-var router = require('./router');
+var productRoute = require('./app/products/router');
+var CategoryRoute = require('./app/category/router');
+var TagRoute = require('./app/tag/router');
+var AuthRoute = require('./app/auth/router');
+var AddresRoute = require('./app/deleveryAddress/router');
+var CartRoute = require('./app/cart/router');
+var OrderRoute = require('./app/order/router');
+var InvoiceRoute = require('./app/invoice/router');
+var RatingRoute = require('./app/rating/router');
+var PaymentRoute = require('./app/payment/router');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -19,8 +28,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(decodeToken());
-app.use('/',router);
-//home
+
+app.use('/api', AuthRoute);
+app.use('/api', productRoute);
+app.use('/api', TagRoute);
+app.use('/api', CategoryRoute);
+app.use('/api', AddresRoute);
+app.use('/api', CartRoute);
+app.use('/api', OrderRoute);
+app.use('/api', InvoiceRoute);
+app.use('/api', RatingRoute);
+app.use('/api',PaymentRoute);
+
 app.use('/',function (req,res){
  res.render('index',{
   title: "Massaid's Store"

@@ -21,6 +21,9 @@ const policies = {
         can('update','DeliveryAddress',{user_id:user._id});
         can('delete','DeliveryAddress',{user_id:user._id});
         can('read','Invoice',{user_id:user._id});
+        can('update','Rating');
+        can('delete','Rating');
+        can('create','Rating');
     },
     admin(user,{can}){
         can('manage','all');
