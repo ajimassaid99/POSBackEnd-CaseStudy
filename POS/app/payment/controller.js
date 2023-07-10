@@ -6,10 +6,8 @@ const { ObjectId } = require('mongodb');
 
 const handleMidtransNotification = async (req, res, next) => {
     try {
-      // Mendapatkan data notifikasi dari Midtrans
       const { body } = req;
   
-      // Membuat instance Midtrans API client
       const snap = new midtransClient.Snap({
         isProduction: false,
         serverKey: config.serverKey,
@@ -21,7 +19,6 @@ const handleMidtransNotification = async (req, res, next) => {
   
   
   
-          // Jika status settlement, ubah status pembayaran menjadi "paid"
           if (transaction_status === 'settlement') {
             await Order.findOneAndUpdate(
                 { _id: order_id },
@@ -36,12 +33,9 @@ const handleMidtransNotification = async (req, res, next) => {
               console.log(a);
               
   
-  
-          // Mengirim respons 200 OK
           return res.sendStatus(200);
         }
-  
-      // Jika notifikasi tidak valid atau order tidak ditemukan, kirim respons error
+
       return res.status(400).json({ error: 'Invalid notification' });
     } catch (error) {
       next(error);

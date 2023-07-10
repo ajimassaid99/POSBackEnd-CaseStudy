@@ -59,10 +59,9 @@ const deleteDeleveryAddressById = async (req, res, next) => {
   let { id } = req.params;
 
   try {
-    const address = await deliveryAddress.findById(id);
-    const subjectAddress = subject('DeliveryAddress',{...address, user_id: address.user});
+    const address = await DeleveryAddress.findById(id);
     let policy = policyFor(req.user);
-    if(policy.can('delete',subjectAddress)){
+    if(policy.can('delete', ('DeliveryAddress', { user_id: address.user.toString()}))){
         return res.json({
             error:1,
             message:`You're not allowed to modify this resource`

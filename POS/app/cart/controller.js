@@ -3,20 +3,20 @@ const CartItems = require('../cart-items/model');
 
 const updateCart = async(req,res,next)=>{
     try{
+        console.log(req.user._id);
         const {items} = req.body;
         const productIds = items.map(item=>item.product._id);
         const products = await Product.find({_id:{$in:productIds}});
         let cartItems = items.map(item=>{
             let relatedProduct = products.find(product => product._id.toString() === item.product._id);
             return{
-                product:relatedProduct._id,
+                product:relatedProduct,
                 user:req.user._id,
                 qty: item.qty,
                 name:relatedProduct.name,
                 price:relatedProduct.price
             }
         });
-
         await CartItems.deleteMany({user:req.user._id});
         await CartItems.bulkWrite(cartItems.map(item=>{
             return{

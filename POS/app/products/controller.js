@@ -158,7 +158,7 @@ const storeProduct = async (req,res,next) =>{
                 try{
 
 
-                    let  product = new Product({...payload,image_url:filename})
+                    let  product = new Product({...payload,image_url:`http://localhost:3002/images/products/${filename}`})
                     await product.save()
                     return res.json(product);
 

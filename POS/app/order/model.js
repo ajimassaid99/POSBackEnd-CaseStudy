@@ -27,7 +27,7 @@ const orderSchema = mongoose.Schema({
         type: String
     },
     order_items: [{type: mongoose.Schema.Types.ObjectId, ref:'OrderItem'}]
-},{timeStamps:true});
+},{timestamps:true});
 
 
 orderSchema.virtual('items_count').get(function(){

@@ -17,13 +17,14 @@ const policies = {
         can('view','Cart',{user_id:user._id});
         can('update','Cart',{user_id:user._id});
         can('view','DeliveryAddress');
-        can('create','DeliveryAddress',{user_id:user._id});
+        can('create','DeliveryAddress');
         can('update','DeliveryAddress',{user_id:user._id});
         can('delete','DeliveryAddress',{user_id:user._id});
         can('read','Invoice',{user_id:user._id});
         can('update','Rating');
         can('delete','Rating');
         can('create','Rating');
+        console.log("2"+ typeof user._id + user._id); 
     },
     admin(user,{can}){
         can('manage','all');

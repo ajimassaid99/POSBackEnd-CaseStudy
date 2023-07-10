@@ -51,19 +51,21 @@ const store = async (req, res, next) => {
         })));
 
         orderItems.forEach(item => order.order_items.push(item));
-        console.log(orderItems);
 
         let sub_total = orderItems.reduce((total, item) => total += (item.price * item.qty), 0);
         let parameter = {
             "transaction_details": {
                 "order_id": order._id.toString(),
                 "gross_amount": parseInt(sub_total + delivery_fee),
-                "email": user.email,
-                "name": user.fullname,
             },
             "credit_card": {
                 "secure": true
-            }
+            },
+            "customer_details": {
+                "first_name":user.full_name,
+                "last_name": "",
+                "email": user.email,
+              }
         };
 
         const transaction = await snap.createTransaction(parameter);
@@ -95,7 +97,7 @@ const getOrder = async (req, res, next) => {
                 .skip(parseInt(skip))
                 .limit(parseInt(limit))
                 .populate('order_items')
-                .sort('-createAt');
+                .sort({ _id: -1 });
         return res.json({
             data: orders.map(order => order.toJSON({ virtuals: true })),
             count
