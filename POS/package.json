@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "SET DEBUG=pos:* && nodemon ./bin/www && lt --port 3002"
+    "start": "npm ./bin/www"
   },
   "dependencies": {
     "@casl/ability": "^6.5.0",
